@@ -1,0 +1,36 @@
+{
+	"name": "knowledge-fabric",
+	"version": "1.0.0",
+	"description": "Standalone knowledge base engine — Qdrant-backed vector search, RRF fusion, knowledge extraction from conversations, wiki compilation, and session context injection",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"lint": "tsc --noEmit"
+	},
+	"keywords": [
+		"knowledge-base",
+		"qdrant",
+		"vector-search",
+		"rrf",
+		"rag",
+		"pi-extension",
+		"knowledge-management"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"@mariozechner/pi-ai": "*",
+		"@mariozechner/pi-coding-agent": "*",
+		"@sinclair/typebox": "*"
+	},
+	"devDependencies": {
+		"typescript": "*"
+	},
+	"pi": {
+		"extensions": [
+			"./index.ts"
+		]
+	}
+}
