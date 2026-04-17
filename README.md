@@ -1,5 +1,10 @@
 # Knowledge Fabric
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Nix Flake](https://img.shields.io/badge/Nix-Flake-5277C3?logo=nixos&logoColor=white)](flake.nix)
+[![Built with Nix](https://img.shields.io/badge/Built%20with-Nix-5277C3?logo=nixos)](https://nixos.org)
+
+
 Standalone knowledge base engine — Qdrant-backed vector search with RRF fusion, knowledge extraction from conversations, wiki compilation, and session context injection.
 
 Originally extracted from the pi brain extension. Works as both a standalone library and a pi extension.
