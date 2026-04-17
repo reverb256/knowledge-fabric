@@ -16,6 +16,17 @@ const QDRANT_URL = "http://10.1.1.120:6333";
 const EMBED_URL = process.env.EMBED_URL || "http://10.1.1.120:30880/embed";
 const VECTOR_DIM = 384;
 
+// Shared keep-alive agent for Qdrant connection pooling
+// Node.js fetch reuses TCP connections when an Agent is provided
+const httpAgent = (() => {
+  try {
+    const { Agent } = require("node:http");
+    return new Agent({ keepAlive: true, maxSockets: 8, timeout: 30000 });
+  } catch {
+    return undefined;
+  }
+})();
+
 export interface Chunk {
 	id: string;
 	content: string;
@@ -31,7 +42,7 @@ export async function embed(
 	texts: string[],
 	signal?: AbortSignal,
 ): Promise<number[][]> {
-	const resp = await fetch(EMBED_URL, {
+	const resp = await fetch(EMBED_URL, { dispatcher: httpAgent,
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ texts }),
@@ -102,6 +113,7 @@ export async function search(
 	const resp = await fetch(
 		`${QDRANT_URL}/collections/${collection}/points/search`,
 		{
+			dispatcher: httpAgent,
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -166,6 +178,7 @@ export async function searchMulti(
 export async function isHealthy(): Promise<boolean> {
 	try {
 		const resp = await fetch(`${QDRANT_URL}/`, {
+		dispatcher: httpAgent,
 			signal: AbortSignal.timeout(3000),
 		});
 		return resp.ok;
@@ -178,6 +191,7 @@ export async function isHealthy(): Promise<boolean> {
 export async function collectionSize(collection: string): Promise<number> {
 	try {
 		const resp = await fetch(`${QDRANT_URL}/collections/${collection}`, {
+		dispatcher: httpAgent,
 			signal: AbortSignal.timeout(3000),
 		});
 		if (!resp.ok) return 0;
