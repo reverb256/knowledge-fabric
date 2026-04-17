@@ -9,6 +9,7 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { cacheKey, getCached, setCache } from "./cache.js";
 import { type Chunk, searchMulti } from "./qdrant.js";
 import { loadState, QUERIES_DIR, saveState } from "./state.js";
 import { appendToLog } from "./utils.js";
@@ -112,6 +113,28 @@ export async function queryBrain(
 	_ctx?: any,
 	signal?: AbortSignal,
 ): Promise<QueryResult> {
+	// Step 0: Check cache for a previous answer
+	const key = cacheKey(question);
+	try {
+		const cached = await getCached(key);
+		if (cached) {
+			appendToLog(`query | ${question.slice(0, 60)} | cache hit`);
+			const state = loadState();
+			state.queryCount = (state.queryCount || 0) + 1;
+			saveState(state);
+			return {
+				question,
+				answer: cached,
+				chunksUsed: 0,
+				webResultsUsed: 0,
+				collectionsSearched: COLLECTIONS,
+				filed: false,
+			};
+		}
+	} catch {
+		// Cache unavailable — proceed with full query
+	}
+
 	// Step 1: Parallel retrieval — Qdrant + SearXNG
 	const [localChunks, webChunks] = await Promise.allSettled([
 		searchMulti(COLLECTIONS, question, 8, signal),
@@ -200,6 +223,11 @@ ${fused
 	const state = loadState();
 	state.queryCount = (state.queryCount || 0) + 1;
 	saveState(state);
+
+	// Step 6: Cache the answer for future queries (fire-and-forget)
+	if (answer.length > 50) {
+		setCache(key, answer, 3600).catch(() => {}); // 1hr TTL, ignore failures
+	}
 
 	return {
 		question,
