@@ -11,7 +11,9 @@
 import { randomUUID } from "node:crypto";
 
 const QDRANT_URL = "http://10.1.1.120:6333";
-const EMBED_URL = "http://10.1.1.120:8643/embed";
+// Embed server runs in K8s (ai-inference namespace on nexus)
+// Fallback to localhost for dev/testing outside cluster
+const EMBED_URL = process.env.EMBED_URL || "http://10.1.1.120:30880/embed";
 const VECTOR_DIM = 384;
 
 export interface Chunk {
