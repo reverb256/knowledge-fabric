@@ -131,8 +131,8 @@ function connect(): Promise<Socket> {
 		});
 
 		// Reject the connect promise on immediate error
-		socket.once("error", (_err: Error) => {
-			if (!connected) reject(err);
+		socket.once("error", (connectErr: Error) => {
+			if (!connected) reject(connectErr);
 		});
 	});
 }
@@ -154,13 +154,13 @@ async function sendCommand(cmd: string): Promise<RespReply> {
 					const { reply } = parseReply(buf);
 					dataBuffer = Buffer.alloc(0);
 					resolve(reply);
-				} catch (err: any) {
+				} catch (_parseErr: unknown) {
 					resolve({ type: "null", value: null }); // parse error -> miss
 				}
 			};
 
-			sock.write(cmd, (err) => {
-				if (err) {
+			sock.write(cmd, (writeErr: Error | null) => {
+				if (writeErr) {
 					clearTimeout(timeout);
 					pendingResolve = null;
 					resolve({ type: "null", value: null });
