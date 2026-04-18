@@ -22,6 +22,7 @@ lib/
 ├── query.ts      — v1: Index-guided retrieval (legacy)
 ├── query-v2.ts   — v2: Qdrant + SearXNG + RRF fusion (active)
 ├── qdrant.ts     — Vector store client (embed, upsert, search)
+├── cache.ts      — Response caching layer
 └── lint.ts       — Structural health checks (8 checks)
 ```
 

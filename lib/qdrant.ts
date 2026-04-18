@@ -13,7 +13,7 @@ import { randomUUID } from "node:crypto";
 const QDRANT_URL = "http://10.1.1.120:6333";
 // Embed server runs in K8s (ai-inference namespace on nexus)
 // Fallback to localhost for dev/testing outside cluster
-const EMBED_URL = process.env.EMBED_URL || "http://10.1.1.120:30880/embed";
+const EMBED_URL = process.env.EMBED_URL || "http://10.1.1.120:8080/embed";
 const VECTOR_DIM = 384;
 
 // Shared keep-alive agent for Qdrant connection pooling

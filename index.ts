@@ -349,7 +349,7 @@ export default function brain(pi: ExtensionAPI) {
 			}
 
 			try {
-				const resp = await fetch("http://10.1.1.120:8643/health", {
+				const resp = await fetch("http://10.1.1.120:8080/embed/health", {
 					signal: AbortSignal.timeout(3000),
 				});
 				checks.push(
