@@ -47,10 +47,35 @@
             cp -r node_modules $out/ 2>/dev/null || true
           '';
         };
+
+        # OCI container image
+        container = pkgs.dockerTools.buildLayeredImage {
+          name = "knowledge-fabric";
+          tag = "latest";
+          contents = [
+            knowledge-fabric
+            nodejs
+            pkgs.bash
+            pkgs.coreutils
+            pkgs.cacert
+          ];
+          config = {
+            Cmd = [
+              "${nodejs}/bin/node"
+              "${knowledge-fabric}/dist/index.js"
+            ];
+            Env = [
+              "NODE_ENV=production"
+              "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
+            ];
+            WorkingDir = "/data";
+          };
+        };
       in
       {
         packages.default = knowledge-fabric;
         packages.knowledge-fabric = knowledge-fabric;
+        packages.container = container;
 
         devShells.default = pkgs.mkShell {
           name = "knowledge-fabric-dev";
@@ -71,6 +96,10 @@
             echo "  npm run dev   — watch mode"
             echo "  npm run lint  — type-check only"
           '';
+        };
+
+        checks = {
+          build = knowledge-fabric;
         };
       }
     );
